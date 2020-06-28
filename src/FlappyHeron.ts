@@ -5,8 +5,10 @@ import heron from './assets/heron.png';
 import ground from './assets/ground.png';
 
 export default class FlappyHeron extends Phaser.Scene {
-    
-    player;
+
+    // bird: Phaser.Physics.Arcade.Sprite;
+    bird;
+    grounds;
     constructor() {
         super('FlappyHeron');
     }
@@ -24,23 +26,33 @@ export default class FlappyHeron extends Phaser.Scene {
         this.add.image(384, 448, 'background');
 
         // Group of ground
-        let grounds = this.physics.add.staticGroup();
+        this.grounds = this.physics.add.staticGroup();
 
         // Ground repeatable
         let ground = this.add.tileSprite(384, 960, 768, 128, 'ground');
 
-        grounds.add(ground);
+        this.grounds.add(ground);
 
         // Player
-        this.player = this.physics.add.sprite(384, 400, 'heron');
+        this.bird = this.physics.add.sprite(320, 500, 'heron').setFrame(1);
 
-        this.player.setBounce(0.2);
-        this.player.setCollideWorldBounds(true);
+        // Ne rebound with collision
+        this.bird.setBounce(0);
+        this.bird.setCollideWorldBounds(true);
+        // No gravity
+        this.bird.body.setAllowGravity(false);
 
         // Colision with grounds
-        this.physics.add.collider(this.player, grounds);
+        this.physics.add.collider(this.bird, this.grounds);
 
         // Animations
+        this.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNumbers('heron', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('heron', { start: 0, end: 3 }),
@@ -57,10 +69,20 @@ export default class FlappyHeron extends Phaser.Scene {
         this.anims.create({
             key: 'right',
             frames: this.anims.generateFrameNumbers('heron', { start: 0, end: 3 }),
-            frameRate: 10,
+            frameRate: 15,
             repeat: -1
         });
-    
+
+        this.tweens.add({
+            targets: this.bird,
+            y: '+=20',
+            repeat: -1,
+            yoyo: true,
+            ease: 'Sine.easeInOut',
+            duration: 400
+        });
+
+        //this.bird.play('fly');
     }
 
     update() {
@@ -69,25 +91,25 @@ export default class FlappyHeron extends Phaser.Scene {
 
         // Left
         if (cursors.left.isDown) {
-            this.player.setVelocityX(-160);
-            this.player.anims.play('left', true);
+            this.bird.setVelocityX(-160);
+            this.bird.anims.play('left', true);
         }
 
         // Right
         else if (cursors.right.isDown) {
-            this.player.setVelocityX(160);
-            this.player.anims.play('right', true);
+            this.bird.setVelocityX(160);
+            this.bird.anims.play('right', true);
         }
 
         // Inactive
         else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
+            this.bird.setVelocityX(0);
+            this.bird.anims.play('turn');
         }
 
         // Up
-        if (cursors.up.isDown && this.player.body.touching.down) {
-            this.player.setVelocityY(-330);
+        if (cursors.up.isDown && this.bird.body.touching.down) {
+            this.bird.setVelocityY(-330);
         }
     }
 }
