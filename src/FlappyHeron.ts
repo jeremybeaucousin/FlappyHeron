@@ -41,7 +41,8 @@ export default class FlappyHeron extends Phaser.Scene {
 
         // Ne rebound with collision
         this.bird.setBounce(0);
-        this.bird.setCollideWorldBounds(true);
+        // No frame limit
+        this.bird.setCollideWorldBounds(false);
         // No gravity
         this.bird.body.setAllowGravity(false);
 
@@ -71,7 +72,7 @@ export default class FlappyHeron extends Phaser.Scene {
             ease: 'Sine.easeInOut',
             duration: 400
         });
-        
+
         // Ground movement
         this.tweens.add({
             targets: ground,
@@ -85,11 +86,10 @@ export default class FlappyHeron extends Phaser.Scene {
     update() {
         // Inputs
         let cursors = this.input.keyboard.createCursorKeys();
-        let mouse = this.input.activePointer;
 
         var _this = this;
-        let pushAction = function() {
-            if(_this.birdTween.isPlaying()) {
+        let pushAction = function () {
+            if (_this.birdTween.isPlaying()) {
                 _this.birdTween.stop();
                 _this.tweens.remove(_this.birdTween);
                 _this.bird.setVelocityY(500);
@@ -105,10 +105,14 @@ export default class FlappyHeron extends Phaser.Scene {
             });
         }
         // Space and mouse click handler
-        cursors.space.onUp = pushAction;
-        // TODO mouse
+        this.input.once('pointerdown', () => {
+            pushAction();
+        });
 
-       
+        
+        if(Phaser.Input.Keyboard.JustDown(cursors.space)) {
+            pushAction();
+        }
     }
 }
 
