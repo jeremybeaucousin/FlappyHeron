@@ -8,6 +8,8 @@ export default class FlappyHeron extends Phaser.Scene {
 
     // bird: Phaser.Physics.Arcade.Sprite;
     bird;
+    birdTween;
+    // birdTween: Phaser.Tweens.Tween;
     grounds;
     constructor() {
         super('FlappyHeron');
@@ -29,7 +31,8 @@ export default class FlappyHeron extends Phaser.Scene {
         this.grounds = this.physics.add.staticGroup();
 
         // Ground repeatable
-        let ground = this.add.tileSprite(384, 960, 768, 128, 'ground');
+        // Size is 768 but mutliplied by 4 for animation    
+        let ground = this.add.tileSprite(384, 960, 3072, 128, 'ground');
 
         this.grounds.add(ground);
 
@@ -54,26 +57,13 @@ export default class FlappyHeron extends Phaser.Scene {
         });
 
         this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('heron', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        this.anims.create({
             key: 'turn',
             frames: [{ key: 'heron', frame: 1 }],
             frameRate: 20
         });
 
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('heron', { start: 0, end: 3 }),
-            frameRate: 15,
-            repeat: -1
-        });
-
-        this.tweens.add({
+        // Bird mouvement
+        this.birdTween = this.tweens.add({
             targets: this.bird,
             y: '+=20',
             repeat: -1,
@@ -81,36 +71,44 @@ export default class FlappyHeron extends Phaser.Scene {
             ease: 'Sine.easeInOut',
             duration: 400
         });
-
-        //this.bird.play('fly');
+        
+        // Ground movement
+        this.tweens.add({
+            targets: ground,
+            x: '-=1152',
+            repeat: -1,
+            ease: 'Linear',
+            duration: 3500
+        });
     }
 
     update() {
         // Inputs
         let cursors = this.input.keyboard.createCursorKeys();
+        let mouse = this.input.activePointer;
 
-        // Left
-        if (cursors.left.isDown) {
-            this.bird.setVelocityX(-160);
-            this.bird.anims.play('left', true);
-        }
+        var _this = this;
+        let pushAction = function() {
+            if(_this.birdTween.isPlaying()) {
+                _this.birdTween.stop();
+                _this.tweens.remove(_this.birdTween);
+                _this.bird.setVelocityY(500);
+                _this.bird.setAngle(-23);
+                _this.bird.anims.play('fly', true);
+            }
 
-        // Right
-        else if (cursors.right.isDown) {
-            this.bird.setVelocityX(160);
-            this.bird.anims.play('right', true);
+            _this.tweens.add({
+                targets: _this.bird,
+                y: '-=175',
+                ease: 'Linear',
+                duration: 150
+            });
         }
+        // Space and mouse click handler
+        cursors.space.onUp = pushAction;
+        // TODO mouse
 
-        // Inactive
-        else {
-            this.bird.setVelocityX(0);
-            this.bird.anims.play('turn');
-        }
-
-        // Up
-        if (cursors.up.isDown && this.bird.body.touching.down) {
-            this.bird.setVelocityY(-330);
-        }
+       
     }
 }
 
