@@ -1,7 +1,8 @@
-
 import 'phaser';
 
 import background from './assets/background.png';
+import heron from './assets/heron.png';
+import ground from './assets/ground.png';
 
 
 export default class FlappyHeron extends Phaser.Scene
@@ -11,14 +12,23 @@ export default class FlappyHeron extends Phaser.Scene
         super('FlappyHeron');
     }
 
+
+
     preload ()
     {
         this.load.image('background', background);
+        this.load.image('heron', heron);
+        this.load.image('ground', ground);
     }
+
 
     create ()
     {
-        this.add.image(150, 300, 'background');
+        this.add.image(384, 448, 'background');
+  
+        let platforms = this.physics.add.staticGroup();
+
+        let starfield = this.add.tileSprite(384, 960, 768, 128, 'ground');
     }
 }
 
