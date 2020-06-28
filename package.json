@@ -4,6 +4,7 @@
   "description": "A flappy bird but with a heron (so original -_- !)",
   "main": "index.js",
   "scripts": {
+    "start": "./node_modules/.bin/http-server -s -o",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,5 +25,8 @@
   "homepage": "https://github.com/jeremybeaucousin/FlappyHeron#readme",
   "dependencies": {
     "phaser": "^3.23.0"
+  },
+  "devDependencies": {
+    "http-server": "^0.12.3"
   }
 }
